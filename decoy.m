@@ -9,8 +9,9 @@ function decoy()
 % format. The sequences are read by the fastaread function and reversed.
 % All decoy sequences will have a "REV_" suffix.
 %
-% 2. INPUT SYNTAX
-% decoy()
+% 2. INPUT
+% - Syntax: decoy()
+% - Fasta file with sequence downloaded from UniProt
 % 
 % 3. OUTPUT
 % The output is a .fasta file containing target and decoy sequences
@@ -42,14 +43,15 @@ stringLocation = questdlg('Choose a decoy string location','String location','Pr
 switch stringLocation
     case 'Prefix'
        stringLoc = 1; 
-       fprintf('Decoy type: reverse\n'); 
+       fprintf('String location: prefix\n'); 
     case 'Suffix'
        stringLoc = 2; 
-       fprintf('Decoy type: random\n'); 
+       fprintf('String location: suffix\n'); 
     otherwise
         return
 end
 decoyString = char(inputdlg('Enter decoy string','Decoy string',1));
+fprintf('Decoy string: %s\n',decoyString);
 
 % Locate .fasta file
 [fastaFile,fastaPath] = uigetfile('.fasta',...
