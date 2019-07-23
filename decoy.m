@@ -20,7 +20,7 @@ function decoy()
 % - Statistics & Machine Learning toolbox for randsample function
 %
 % Created: 18/7/2019
-% Last update: 22/7/2019
+% Last update: 23/7/2019
 % (c) Joris Meurs, MSc
 
 clc
@@ -38,7 +38,18 @@ switch decoyInput
 end
 
 % Give a suffix
-suffix = char(inputdlg('Enter suffix','Suffix',1));
+stringLocation = questdlg('Choose a decoy string location','String location','Prefix','Suffix','Prefix');
+switch stringLocation
+    case 'Prefix'
+       stringLoc = 1; 
+       fprintf('Decoy type: reverse\n'); 
+    case 'Suffix'
+       stringLoc = 2; 
+       fprintf('Decoy type: random\n'); 
+    otherwise
+        return
+end
+decoyString = char(inputdlg('Enter decoy string','Decoy string',1));
 
 % Locate .fasta file
 [fastaFile,fastaPath] = uigetfile('.fasta',...
@@ -62,8 +73,14 @@ if decoyType == 1
         temp_sequence = sequences;
         entryLoc = [];
         entryLoc = find(temp_header=='|');
-        reverseHeaders = [temp_header(1:entryLoc(2)-1) suffix temp_header(entryLoc(2):end)];
-        reverseSequences = fliplr(temp_sequence);
+        if stringLoc == 1
+            reverseHeaders = [decoyString temp_header(entryLoc(1)+1:entryLoc(2)-1) '' temp_header(entryLoc(2)+1:end)];
+            reverseSequences = fliplr(temp_sequence);
+        end
+        if stringLoc == 2
+            reverseHeaders = [temp_header(entryLoc(1)+1:entryLoc(2)-1) decoyString '' temp_header(entryLoc(2)+1:end)];
+            reverseSequences = fliplr(temp_sequence);
+        end
     else % Multiple sequences
         wb = waitbar(0,'Generating decoy sequences...');
         for j = 1:length(headers)
@@ -73,8 +90,14 @@ if decoyType == 1
             temp_sequence = sequences{j};
             entryLoc = [];
             entryLoc = find(temp_header=='|');
-            reverseHeaders{j} = [temp_header(1:entryLoc(2)-1) suffix temp_header(entryLoc(2):end)];
-            reverseSequences{j} = fliplr(temp_sequence);
+            if stringLoc == 1
+                reverseHeaders{j} = [decoyString temp_header(entryLoc(1)+1:entryLoc(2)-1) '' temp_header(entryLoc(2)+1:end)];
+                reverseSequences{j} = fliplr(temp_sequence);
+            end
+            if stringLoc == 2
+                reverseHeaders{j} = [temp_header(entryLoc(1)+1:entryLoc(2)-1) decoyString '' temp_header(entryLoc(2)+1:end)];
+                reverseSequences{j} = fliplr(temp_sequence);
+            end
         end
     end
 end
@@ -89,8 +112,14 @@ if decoyType == 2
         temp_sequence = sequences;
         entryLoc = [];
         entryLoc = find(temp_header=='|');
-        randomHeaders = [temp_header(1:entryLoc(2)-1) suffix temp_header(entryLoc(2):end)];
-        randomSequences = randsample(temp_sequence,length(temp_sequence));
+        if stringLoc == 1
+           randomHeaders = [decoyString temp_header(entryLoc(1)+1:entryLoc(2)-1) '' temp_header(entryLoc(2)+1:end)];
+           randomSequences = randsample(temp_sequence,length(temp_sequence)); 
+        end
+        if stringLoc == 2
+           randomHeaders = [temp_header(entryLoc(1)+1:entryLoc(2)-1) decoyString '' temp_header(entryLoc(2)+1:end)];
+           randomSequences = randsample(temp_sequence,length(temp_sequence)); 
+        end        
     else % Multiple sequences
         wb = waitbar(0,'Generating decoy sequences...');
         for j = 1:length(headers)
@@ -100,11 +129,19 @@ if decoyType == 2
             temp_sequence = sequences{j};
             entryLoc = [];
             entryLoc = find(temp_header=='|');
-            randomHeaders{j} = [temp_header(1:entryLoc(2)-1) suffix temp_header(entryLoc(2):end)];
-            randomSequences{j} = randsample(temp_sequence,length(temp_sequence));
+            if stringLoc == 1
+                randomHeaders{j} = [decoyString temp_header(entryLoc(1)+1:entryLoc(2)-1) '' temp_header(entryLoc(2)+1:end)];
+                randomSequences{j} = randsample(temp_sequence,length(temp_sequence)); 
+            end
+            if stringLoc == 2
+                randomHeaders{j} = [temp_header(entryLoc(1)+1:entryLoc(2)-1) decoyString '' temp_header(entryLoc(2)+1:end)];
+                randomSequences{j} = randsample(temp_sequence,length(temp_sequence)); 
+            end    
         end
     end 
 end
+
+% Shuffle amino acids between cleavage sites --> to be added
 
 % Write all sequences to new .fasta file
 extensionLoc = find(fastaFile=='.');
